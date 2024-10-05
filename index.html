@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Generator</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #45b7af;
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+            --container-bg: #ffffff;
+            --input-bg: #f0f3f7;
+            --shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        body {
+            font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 480px;
+            width: 90%;
+            padding: 2.5rem;
+            background: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-weight: 300;
+            font-size: 2.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #d7dcdf;
+            outline: none;
+            padding: 0;
+            margin: 0;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--secondary-color);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border: 0;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            transition: background 0.15s ease-in-out;
+        }
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--secondary-color);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 54px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        #password {
+            background: var(--input-bg);
+            padding: 1rem;
+            border-radius: 6px;
+            word-break: break-all;
+            margin: 1.5rem 0;
+            text-align: center;
+            font-size: 1.2rem;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        #password:hover {
+            border-color: var(--primary-color);
+        }
+        .strength-meter {
+            height: 8px;
+            margin-top: 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .strength-meter::before {
+            content: '';
+            display: block;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .weak::before { width: 33.33%; background-color: #e74c3c; }
+        .medium::before { width: 66.66%; background-color: #f39c12; }
+        .strong::before { width: 100%; background-color: #2ecc71; }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .credit {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+        body.dark-mode {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --container-bg: #16213e;
+            --input-bg: #0f3460;
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 2rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <div class="container">
+        <h1>Password Generator</h1>
+        <div class="form-group">
+            <label for="toggle">Dark Mode</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="toggle">
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <div class="form-group">
+            <label for="length">Password Length: <span id="lengthValue">12</span></label>
+            <input type="range" id="length" value="12" min="8" max="128" step="1">
+        </div>
+        <div class="form-group">
+            <label for="complexity">Complexity</label>
+            <input type="range" id="complexity" value="2" min="1" max="4" step="1">
+        </div>
+        <button id="generate-btn">Generate Password</button>
+        <div id="password"></div>
+        <button id="copy-btn">Copy to Clipboard</button>
+        <div class="strength-meter" id="strength-meter"></div>
+        <div class="credit">Made By Bisam</div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const els = {
+                password: document.getElementById("password"),
+                strengthMeter: document.getElementById("strength-meter"),
+                lengthInput: document.getElementById("length"),
+                lengthValue: document.getElementById("lengthValue"),
+                complexityInput: document.getElementById("complexity"),
+                generateBtn: document.getElementById("generate-btn"),
+                copyBtn: document.getElementById("copy-btn"),
+                toggle: document.getElementById("toggle"),
+                loadingOverlay: document.querySelector('.loading-overlay'),
+                container: document.querySelector('.container')
+            };
+
+            els.toggle.addEventListener('change', updateTheme);
+            els.lengthInput.addEventListener('input', updateLengthValue);
+            els.generateBtn.addEventListener("click", generatePasswordHandler);
+            els.copyBtn.addEventListener("click", copyToClipboard);
+
+            function updateTheme() {
+                document.body.classList.toggle('dark-mode', els.toggle.checked);
+            }
+
+            function updateLengthValue() {
+                els.lengthValue.textContent = els.lengthInput.value;
+            }
+
+            function generatePassword(length, complexity) {
+                const charsets = [
+                    'abcdefghijklmnopqrstuvwxyz',
+                    'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                    '0123456789',
+                    '!@#$%^&*()_+[]{}|;:,.<>?'
+                ];
+
+                let chars = charsets.slice(0, complexity).join('');
+                let password = '';
+
+                for (let i = 0; i < length; i++) {
+                    const randomIndex = Math.floor(Math.random() * chars.length);
+                    password += chars[randomIndex];
+                }
+
+                return password;
+            }
+
+            function updateStrengthMeter(password) {
+                const strength = calculatePasswordStrength(password);
+                els.strengthMeter.className = `strength-meter ${strength.toLowerCase()}`;
+            }
+
+            function calculatePasswordStrength(password) {
+                const length = password.length;
+                const hasLower = /[a-z]/.test(password);
+                const hasUpper = /[A-Z]/.test(password);
+                const hasNumber = /\d/.test(password);
+                const hasSpecial = /[!@#$%^&*()_+[\]{};:'"\\|,.<>?/-]/.test(password);
+
+                const score = [length >= 12, hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+
+                return score <= 2 ? 'Weak' : score <= 4 ? 'Medium' : 'Strong';
+            }
+
+            function generatePasswordHandler() {
+                showLoading();
+                setTimeout(() => {
+                    const length = parseInt(els.lengthInput.value);
+                    const complexity = parseInt(els.complexityInput.value);
+                    const password = generatePassword(length, complexity);
+                    els.password.textContent = password;
+                    updateStrengthMeter(password);
+                    hideLoading();
+                }, 1000);
+            }
+
+            function copyToClipboard() {
+                navigator.clipboard.writeText(els.password.textContent).then(() => {
+                    els.copyBtn.textContent = "Copied!";
+                    setTimeout(() => { els.copyBtn.textContent = "Copy to Clipboard"; }, 2000);
+                });
+            }
+
+            function showLoading() {
+                els.loadingOverlay.classList.add('show');
+            }
+
+            function hideLoading() {
+                els.loadingOverlay.classList.remove('show');
+            }
+
+            setTimeout(() => {
+                els.container.classList.add('show');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
