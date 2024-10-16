@@ -3,236 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Password Generator</title>
+    <title>Advanced Password Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4a90e2;
-            --secondary-color: #45b7af;
-            --bg-color: #f5f7fa;
-            --text-color: #333;
-            --container-bg: #ffffff;
-            --input-bg: #f0f3f7;
-            --shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --bg-color: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-color: #ffffff;
+            --primary-color: #6d5dfc;
+            --secondary-color: #fc5d8d;
+            --tertiary-color: #5dfcb6;
         }
-        body {
-            font-family: 'Roboto', 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: all 0.3s ease;
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
+
         .container {
-            max-width: 480px;
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
             width: 90%;
-            padding: 2.5rem;
-            background: var(--container-bg);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
+            max-width: 500px;
             opacity: 0;
             transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
+
         .container.show {
             opacity: 1;
             transform: translateY(0);
         }
+
         h1 {
             text-align: center;
             color: var(--primary-color);
-            margin-bottom: 2rem;
-            font-weight: 300;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
             font-size: 2.5rem;
+            letter-spacing: 1px;
         }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            font-weight: 400;
+        }
+
+        .tab.active {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
+
         label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 500;
+            font-weight: 300;
         }
-        input[type="range"] {
+
+        input[type="range"], input[type="text"], input[type="password"] {
             width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input[type="range"] {
             -webkit-appearance: none;
             height: 8px;
             border-radius: 4px;
-            background: #d7dcdf;
+            background: var(--bg-color);
             outline: none;
-            padding: 0;
-            margin: 0;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
+
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: var(--primary-color);
             cursor: pointer;
-            transition: all 0.15s ease-in-out;
+            transition: all 0.3s ease;
         }
+
         input[type="range"]::-webkit-slider-thumb:hover {
-            background: var(--secondary-color);
+            transform: scale(1.1);
         }
-        input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border: 0;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-            transition: background 0.15s ease-in-out;
-        }
-        input[type="range"]::-moz-range-thumb:hover {
-            background: var(--secondary-color);
-        }
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 54px;
-            height: 30px;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 30px;
-        }
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .toggle-slider {
-            background-color: var(--primary-color);
-        }
-        input:checked + .toggle-slider:before {
-            transform: translateX(24px);
-        }
+
         button {
-            display: block;
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary-color);
-            color: white;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
             border: none;
-            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
             cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
             transition: all 0.3s ease;
-            margin-top: 1.5rem;
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
         }
+
         button:hover {
-            background: var(--secondary-color);
+            background-color: var(--secondary-color);
             transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(252, 93, 141, 0.4);
         }
-        button:active {
-            transform: translateY(0);
-            box-shadow: none;
-        }
-        #password {
-            background: var(--input-bg);
+
+        #password, #validationResult {
+            background-color: var(--bg-color);
             padding: 1rem;
-            border-radius: 6px;
+            border-radius: 10px;
+            margin: 1rem 0;
             word-break: break-all;
-            margin: 1.5rem 0;
             text-align: center;
-            font-size: 1.2rem;
             font-family: 'Courier New', monospace;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            border: 1px solid var(--primary-color);
         }
-        #password:hover {
-            border-color: var(--primary-color);
-        }
+
         .strength-meter {
             height: 8px;
-            margin-top: 1rem;
             border-radius: 4px;
+            margin-top: 1rem;
             transition: all 0.3s ease;
             overflow: hidden;
         }
+
         .strength-meter::before {
             content: '';
             display: block;
             height: 100%;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            width: 0;
+        }
+
+        .weak::before { width: 33.33%; background-color: var(--secondary-color); }
+        .medium::before { width: 66.66%; background-color: var(--tertiary-color); }
+        .strong::before { width: 100%; background-color: var(--primary-color); }
+
+        .requirements {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .requirements li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
-        .weak::before { width: 33.33%; background-color: #e74c3c; }
-        .medium::before { width: 66.66%; background-color: #f39c12; }
-        .strong::before { width: 100%; background-color: #2ecc71; }
+
+        .requirements li::before {
+            content: '•';
+            color: var(--secondary-color);
+            font-size: 1.5em;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .requirements li.met::before {
+            color: var(--tertiary-color);
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--primary-color);
+        }
+
+        .github-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .github-icon:hover {
+            fill: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .credit {
+            font-size: 0.875rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background-color: var(--bg-color);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
+            transition: opacity 0.5s ease;
         }
-        .loading-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
+
         .loading-spinner {
             width: 50px;
             height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-color);
+            border: 3px solid var(--primary-color);
+            border-top: 3px solid var(--secondary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .credit {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-            color: var(--text-color);
-            opacity: 0.7;
-        }
-        body.dark-mode {
-            --bg-color: #1a1a2e;
-            --text-color: #e0e0e0;
-            --container-bg: #16213e;
-            --input-bg: #0f3460;
-        }
-        @media (max-width: 600px) {
+
+        @media (max-width: 480px) {
             .container {
-                width: 95%;
-                padding: 2rem;
+                padding: 1.5rem;
             }
+
             h1 {
                 font-size: 2rem;
             }
@@ -244,123 +290,176 @@
         <div class="loading-spinner"></div>
     </div>
     <div class="container">
-        <h1>Password Generator</h1>
-        <div class="form-group">
-            <label for="toggle">Dark Mode</label>
-            <label class="toggle-switch">
-                <input type="checkbox" id="toggle">
-                <span class="toggle-slider"></span>
-            </label>
+        <h1>Password Toolkit</h1>
+        <div class="tabs">
+            <button class="tab active" data-tab="generator">Generator</button>
+            <button class="tab" data-tab="validator">Validator</button>
         </div>
-        <div class="form-group">
-            <label for="length">Password Length: <span id="lengthValue">12</span></label>
-            <input type="range" id="length" value="12" min="8" max="128" step="1">
+        <div id="generatorTab" class="tab-content active">
+            <div class="form-group">
+                <label for="length">Password Length: <span id="lengthValue">12</span></label>
+                <input type="range" id="length" min="8" max="128" value="12">
+            </div>
+            <div class="form-group">
+                <label for="complexity">Complexity: <span id="complexityValue">2</span></label>
+                <input type="range" id="complexity" min="1" max="4" value="2">
+            </div>
+            <button id="generate">Generate Password</button>
+            <div id="password"></div>
+            <button id="copy">Copy to Clipboard</button>
+            <div id="strengthMeter" class="strength-meter"></div>
         </div>
-        <div class="form-group">
-            <label for="complexity">Complexity</label>
-            <input type="range" id="complexity" value="2" min="1" max="4" step="1">
+        <div id="validatorTab" class="tab-content">
+            <div class="form-group">
+                <label for="passwordToValidate">Enter Password to Validate:</label>
+                <input type="password" id="passwordToValidate">
+            </div>
+            <div id="validationResult"></div>
+            <ul class="requirements">
+                <li id="lengthReq">At least 8 characters long</li>
+                <li id="upperReq">Contains uppercase letter</li>
+                <li id="lowerReq">Contains lowercase letter</li>
+                <li id="numberReq">Contains number</li>
+                <li id="specialReq">Contains special character</li>
+            </ul>
         </div>
-        <button id="generate-btn">Generate Password</button>
-        <div id="password"></div>
-        <button id="copy-btn">Copy to Clipboard</button>
-        <div class="strength-meter" id="strength-meter"></div>
-        <div class="credit">Made By Bisam</div>
+        <div class="footer">
+            <a href="https://github.com/DexCodeSX" target="_blank" rel="noopener noreferrer">
+                <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </a>
+            <div class="credit">Made by Bisam</div>
+        </div>
     </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const els = {
-                password: document.getElementById("password"),
-                strengthMeter: document.getElementById("strength-meter"),
-                lengthInput: document.getElementById("length"),
-                lengthValue: document.getElementById("lengthValue"),
-                complexityInput: document.getElementById("complexity"),
-                generateBtn: document.getElementById("generate-btn"),
-                copyBtn: document.getElementById("copy-btn"),
-                toggle: document.getElementById("toggle"),
-                loadingOverlay: document.querySelector('.loading-overlay'),
-                container: document.querySelector('.container')
+        const elements = {
+            loadingOverlay: document.querySelector('.loading-overlay'),
+            container: document.querySelector('.container'),
+            tabs: document.querySelectorAll('.tab'),
+            tabContents: document.querySelectorAll('.tab-content'),
+            length: document.getElementById('length'),
+            lengthValue: document.getElementById('lengthValue'),
+            complexity: document.getElementById('complexity'),
+            complexityValue: document.getElementById('complexityValue'),
+            generate: document.getElementById('generate'),
+            password: document.getElementById('password'),
+            copy: document.getElementById('copy'),
+            strengthMeter: document.getElementById('strengthMeter'),
+            passwordToValidate: document.getElementById('passwordToValidate'),
+            validationResult: document.getElementById('validationResult'),
+            requirements: {
+                length: document.getElementById('lengthReq'),
+                upper: document.getElementById('upperReq'),
+                lower: document.getElementById('lowerReq'),
+                number: document.getElementById('numberReq'),
+                special: document.getElementById('specialReq')
+            }
+        };
+
+        // Simulating page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                elements.loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    elements.loadingOverlay.style.display = 'none';
+                    elements.container.classList.add('show');
+                }, 500);
+            }, 1500);
+        });
+
+        // Tab functionality
+        elements.tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                elements.tabs.forEach(t => t.classList.remove('active'));
+                elements.tabContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}Tab`).classList.add('active');
+            });
+        });
+
+        elements.length.addEventListener('input', () => {
+            elements.lengthValue.textContent = elements.length.value;
+        });
+
+        elements.complexity.addEventListener('input', () => {
+            elements.complexityValue.textContent = elements.complexity.value;
+        });
+
+        elements.generate.addEventListener('click', generatePassword);
+        elements.copy.addEventListener('click', copyToClipboard);
+        elements.passwordToValidate.addEventListener('input', validatePassword);
+
+        function generatePassword() {
+            const length = parseInt(elements.length.value);
+            const complexity = parseInt(elements.complexity.value);
+            const charsets = [
+                'abcdefghijklmnopqrstuvwxyz',
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                '0123456789',
+                '!@#$%^&*()_+[]{}|;:,.<>?'
+            ];
+
+            let chars = charsets.slice(0, complexity).join('');
+            let password = '';
+
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * chars.length);
+                password += chars[randomIndex];
+            }
+
+            elements.password.textContent = password;
+            updateStrengthMeter(password);
+        }
+
+        function updateStrengthMeter(password) {
+            const strength = calculatePasswordStrength(password);
+            elements.strengthMeter.className = `strength-meter ${strength}`;
+        }
+
+        function calculatePasswordStrength(password) {
+            const length = password.length;
+            const hasLower = /[a-z]/.test(password);
+            const hasUpper = /[A-Z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSpecial = /[!@#$%^&*()_+[\]{};:'"\\|,.<>?/-]/.test(password);
+
+            const score = [length >= 12, hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+
+            return score <= 2 ? 'weak' : score <= 4 ? 'medium' : 'strong';
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(elements.password.textContent).then(() => {
+                elements.copy.textContent = 'Copied!';
+                setTimeout(() => {
+                    elements.copy.textContent = 'Copy to Clipboard';
+                }, 2000);
+            });
+        }
+
+        function validatePassword() {
+            const password = elements.passwordToValidate.value;
+            const requirements = {
+                length: password.length >= 8,
+                upper: /[A-Z]/.test(password),
+                lower: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@#$%^&*()_+[\]{};:'"\\|,.<>?/-]/.test(password)
             };
 
-            els.toggle.addEventListener('change', updateTheme);
-            els.lengthInput.addEventListener('input', updateLengthValue);
-            els.generateBtn.addEventListener("click", generatePasswordHandler);
-            els.copyBtn.addEventListener("click", copyToClipboard);
+            Object.keys(requirements).forEach(req => {
+                elements.requirements[req].classList.toggle('met', requirements[req]);
+            });
 
-            function updateTheme() {
-                document.body.classList.toggle('dark-mode', els.toggle.checked);
-            }
+            const strength = calculatePasswordStrength(password);
+            elements.validationResult.textContent = `Password Strength: ${strength.charAt(0).toUpperCase() + strength.slice(1)}`;
+            elements.validationResult.className = strength;
+        }
 
-            function updateLengthValue() {
-                els.lengthValue.textContent = els.lengthInput.value;
-            }
-
-            function generatePassword(length, complexity) {
-                const charsets = [
-                    'abcdefghijklmnopqrstuvwxyz',
-                    'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-                    '0123456789',
-                    '!@#$%^&*()_+[]{}|;:,.<>?'
-                ];
-
-                let chars = charsets.slice(0, complexity).join('');
-                let password = '';
-
-                for (let i = 0; i < length; i++) {
-                    const randomIndex = Math.floor(Math.random() * chars.length);
-                    password += chars[randomIndex];
-                }
-
-                return password;
-            }
-
-            function updateStrengthMeter(password) {
-                const strength = calculatePasswordStrength(password);
-                els.strengthMeter.className = `strength-meter ${strength.toLowerCase()}`;
-            }
-
-            function calculatePasswordStrength(password) {
-                const length = password.length;
-                const hasLower = /[a-z]/.test(password);
-                const hasUpper = /[A-Z]/.test(password);
-                const hasNumber = /\d/.test(password);
-                const hasSpecial = /[!@#$%^&*()_+[\]{};:'"\\|,.<>?/-]/.test(password);
-
-                const score = [length >= 12, hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
-
-                return score <= 2 ? 'Weak' : score <= 4 ? 'Medium' : 'Strong';
-            }
-
-            function generatePasswordHandler() {
-                showLoading();
-                setTimeout(() => {
-                    const length = parseInt(els.lengthInput.value);
-                    const complexity = parseInt(els.complexityInput.value);
-                    const password = generatePassword(length, complexity);
-                    els.password.textContent = password;
-                    updateStrengthMeter(password);
-                    hideLoading();
-                }, 1000);
-            }
-
-            function copyToClipboard() {
-                navigator.clipboard.writeText(els.password.textContent).then(() => {
-                    els.copyBtn.textContent = "Copied!";
-                    setTimeout(() => { els.copyBtn.textContent = "Copy to Clipboard"; }, 2000);
-                });
-            }
-
-            function showLoading() {
-                els.loadingOverlay.classList.add('show');
-            }
-
-            function hideLoading() {
-                els.loadingOverlay.classList.remove('show');
-            }
-
-            setTimeout(() => {
-                els.container.classList.add('show');
-            }, 100);
-        });
+        // Generate a password on page load
+        generatePassword();
     </script>
 </body>
 </html>
